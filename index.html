@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Circles of cubes</title>
+  </head>
+
+  <body>
+    <div id="app">
+      <header>
+        <h1>The portal of doom</h1>
+        <div>
+          <span>scroll to open the portal</span>
+          <svg viewBox="0 0 64 96" xmlns="http://www.w3.org/2000/svg">
+            <rect stroke-width="4" stroke="currentColor" fill="none" x="2" y="2" width="60" height="92" rx="32"
+              ry="32" />
+            <rect fill="currentColor" x="28" y="16" width="8" height="24" rx="4" ry="4" class="svg-wheel" />
+          </svg>
+        </div>
+      </header>
+    </div>
+    <canvas class="webgl-canvas"></canvas>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+
+</html>
