@@ -4,7 +4,7 @@
   padding: 0;
 }
 body {
-  font-family: "Aktura-Regular", Helvetica, Arial, sans-serif;
+  font-family: "Aktura", serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -53,7 +53,7 @@ header {
     svg {
       height: 2rem;
       .svg-wheel {
-        animation: scroll infinite alternate .64s ease-in-out;
+        animation: scroll infinite alternate 0.64s ease-in-out;
         @keyframes scroll {
           to {
             transform: translateY(10%);
