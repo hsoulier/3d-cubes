@@ -10,6 +10,7 @@ const RADIUS = CUBE_SIZE * 8
 
 const gui = new GUI()
 gui.add(document, "title")
+gui.hide()
 
 const scene = new THREE.Scene()
 scene.background = new THREE.Color("#111111")
@@ -59,7 +60,6 @@ const controls = new OrbitControls(camera, renderer.domElement)
 
 // controls.enableZoom = false
 // const objects = gui.addFolder(`3D Objects`)
-// objects.hide()
 
 const cubes = new THREE.Group()
 
@@ -92,11 +92,19 @@ scene.add(cubes)
 
 window.addEventListener("resize", onWindowResize, false)
 
+export const onResize = () => {
+  document.body.style.setProperty(
+    "--vh",
+    `${document.documentElement.clientHeight / 100}px`
+  )
+}
+onResize()
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
   renderer.setSize(window.innerWidth, window.innerHeight)
   render()
+  onResize()
 }
 
 function animate() {

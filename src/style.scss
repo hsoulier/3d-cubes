@@ -5,6 +5,7 @@
 }
 body {
   font-family: "Aktura", serif;
+  font-display: block;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -22,21 +23,22 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
   width: 100%;
   z-index: -1;
 }
 
 header {
   position: relative;
-  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
   display: grid;
   place-content: center;
   h1 {
-    font-size: 13vw;
+    font-size: max(13vw, 5rem);
     text-align: center;
-    letter-spacing: 2px;
+    // letter-spacing: 1px;
     text-shadow: 0 0 0.75rem #31164c;
+    line-height: 1;
   }
   div {
     color: #a9a9a9;
