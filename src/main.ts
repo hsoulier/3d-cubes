@@ -4,9 +4,9 @@ import { AnaglyphEffect } from "three/examples/jsm/effects/AnaglyphEffect"
 import GUI from "lil-gui"
 import "./style.scss"
 
-const CUBES_NUMBER = 24
+const CUBES_NUMBER = 13
 const CUBE_SIZE = 2
-const RADIUS = CUBE_SIZE * 8
+const RADIUS = CUBE_SIZE * 4
 
 const gui = new GUI()
 gui.add(document, "title")
@@ -90,7 +90,41 @@ for (let i = 1; i <= CUBES_NUMBER; i++) {
 
 scene.add(cubes)
 
+const ringGeometry = new THREE.RingGeometry(RADIUS, RADIUS, 40, 40)
+const ring = new THREE.Mesh(ringGeometry, material)
+
+scene.add(ring)
+
 window.addEventListener("resize", onWindowResize, false)
+window.addEventListener(
+  "scroll",
+  (e) => {
+    console.log(e)
+
+    if (ring) {
+      const scroll = window.pageYOffset
+      const height =
+        document.querySelector<HTMLDivElement>("#app")!.getBoundingClientRect()
+          .height - window.innerHeight
+
+      const ratioScroll = scroll / height
+      ring.add(
+        new THREE.Mesh(
+          new THREE.RingGeometry(
+            RADIUS * Math.abs(ratioScroll - 1),
+            RADIUS,
+            40,
+            40
+          ),
+          material
+        )
+      )
+    }
+
+    // console.log(ring)
+  },
+  false
+)
 
 export const onResize = () => {
   document.body.style.setProperty(
@@ -123,6 +157,8 @@ function animate() {
   const ratioScroll = scroll / height
 
   cubes.rotateOnAxis(new THREE.Vector3(0, 0, 1), ratioScroll * 0.05)
+
+  // ring.mesh.geometry.parameters.innerRadius = RADIUS * Math.abs(ratioScroll - 1)
 
   camera.position.z = RADIUS * 2 * (1 + ratioScroll)
 
