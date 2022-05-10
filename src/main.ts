@@ -1,16 +1,23 @@
 import * as THREE from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
-import { AnaglyphEffect } from "three/examples/jsm/effects/AnaglyphEffect"
+// import { AnaglyphEffect } from "three/examples/jsm/effects/AnaglyphEffect"
 import GUI from "lil-gui"
 import "./style.scss"
+import portalImage from "./portal.png"
+// @ts-ignore
+import vertexShader from "./shaders/vertex.glsl"
+// @ts-ignore
+import fragmentShader from "./shaders/fragment.glsl"
 
-const CUBES_NUMBER = 13
-const CUBE_SIZE = 2
-const RADIUS = CUBE_SIZE * 4
+const CUBES_NUMBER = 7
+const CUBE_SIZE = 1
+const RADIUS = CUBE_SIZE * 5
 
 const gui = new GUI()
 gui.add(document, "title")
 gui.hide()
+
+const portalTexture = new THREE.TextureLoader().load(portalImage)
 
 const scene = new THREE.Scene()
 scene.background = new THREE.Color("#111111")
@@ -53,8 +60,8 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 document.body.appendChild(renderer.domElement)
 
 // TODO: Post processing effects
-const effect = new AnaglyphEffect(renderer)
-effect.setSize(window.innerWidth, window.innerHeight)
+// const effect = new AnaglyphEffect(renderer)
+// effect.setSize(window.innerWidth, window.innerHeight)
 
 const controls = new OrbitControls(camera, renderer.domElement)
 
@@ -74,7 +81,11 @@ const material = new THREE.MeshPhongMaterial({
   flatShading: true,
   // wireframe: true,
 })
-const geometry = new THREE.BoxGeometry(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE)
+const geometry = new THREE.SphereGeometry(
+  CUBE_SIZE,
+  CUBE_SIZE * 8,
+  CUBE_SIZE * 8
+)
 
 for (let i = 1; i <= CUBES_NUMBER; i++) {
   const currAngle = i * (Math.PI / (CUBES_NUMBER / 2))
@@ -89,39 +100,44 @@ for (let i = 1; i <= CUBES_NUMBER; i++) {
 }
 
 scene.add(cubes)
-
+const materialShaders = new THREE.RawShaderMaterial({
+  vertexShader,
+  fragmentShader,
+  transparent: true,
+  uniforms: {
+    uFrequency: { value: new THREE.Vector2(10, 5) },
+    uTime: { value: 0 },
+    uColor: { value: new THREE.Color("orange") },
+    uTexture: { value: portalTexture },
+  },
+})
 const ringGeometry = new THREE.RingGeometry(RADIUS, RADIUS, 40, 40)
-const ring = new THREE.Mesh(ringGeometry, material)
+const ring = new THREE.Mesh(ringGeometry, materialShaders)
 
 scene.add(ring)
 
 window.addEventListener("resize", onWindowResize, false)
 window.addEventListener(
   "scroll",
-  (e) => {
-    console.log(e)
-
-    if (ring) {
-      const scroll = window.pageYOffset
-      const height =
-        document.querySelector<HTMLDivElement>("#app")!.getBoundingClientRect()
-          .height - window.innerHeight
-
-      const ratioScroll = scroll / height
-      ring.add(
-        new THREE.Mesh(
-          new THREE.RingGeometry(
-            RADIUS * Math.abs(ratioScroll - 1),
-            RADIUS,
-            40,
-            40
-          ),
-          material
-        )
-      )
+  () => {
+    const scroll = window.pageYOffset
+    const height =
+      document.querySelector<HTMLDivElement>("#app")!.getBoundingClientRect()
+        .height - window.innerHeight
+    const ratioScroll = scroll / height
+    const mesh = new THREE.Mesh(
+      new THREE.RingGeometry(
+        RADIUS * Math.abs(ratioScroll - 1),
+        RADIUS,
+        40,
+        40
+      ),
+      materialShaders
+    )
+    ring.add(mesh)
+    for (let i = ring.children.length - 1; i >= 0; i--) {
+      if (ring.children[i].uuid !== mesh.uuid) ring.remove(ring.children[i])
     }
-
-    // console.log(ring)
   },
   false
 )
@@ -141,8 +157,11 @@ function onWindowResize() {
   onResize()
 }
 
+const clock = new THREE.Clock()
 function animate() {
   requestAnimationFrame(animate)
+  const elapsedTime = clock.getElapsedTime()
+  materialShaders.uniforms.uTime.value = elapsedTime * 3
 
   for (const cube of cubes.children) {
     cube.rotation.x += 0.006
@@ -153,14 +172,21 @@ function animate() {
   const height =
     document.querySelector<HTMLDivElement>("#app")!.getBoundingClientRect()
       .height - window.innerHeight
-
   const ratioScroll = scroll / height
-
   cubes.rotateOnAxis(new THREE.Vector3(0, 0, 1), ratioScroll * 0.05)
 
   // ring.mesh.geometry.parameters.innerRadius = RADIUS * Math.abs(ratioScroll - 1)
 
+  // const currAngle = ratioScroll * (Math.PI / (CUBES_NUMBER / 2))
+  // console.log(
+  //   RADIUS * (1 + ratioScroll) * Math.cos(currAngle),
+  //   RADIUS * (1 + ratioScroll) * Math.sin(currAngle)
+  // )
+
   camera.position.z = RADIUS * 2 * (1 + ratioScroll)
+  // camera.position.y = RADIUS * (1 + ratioScroll) * Math.cos(currAngle)
+  // camera.position.x = 1 - RADIUS * 2 * (1 + ratioScroll) * Math.sin(currAngle)
+  camera.lookAt(new THREE.Vector3(0, 0, 0))
 
   controls.update()
 
